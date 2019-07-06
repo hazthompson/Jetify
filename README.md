@@ -15,7 +15,7 @@ Here is a demo for Jetify: https://jetify.herokuapp.com/
 ## Setup
 1. cd into client folder and run `npm install`
 2. Run `bundle install` in the root folder
-3. Run `rake:db setup` then `rake:db migrate` to initialize the database
+3. Run `rake db:setup` then `rake db:migrate` to initialize the database
 4. Run `bin/rails s` to start the rails back-end server
 5. In a new terminal window, run `npm start` to start the react front-end server
 6. Visit `http://localhost:3000` to view the app (Make sure you include all the API keys in order to run the app)

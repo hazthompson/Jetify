@@ -3,7 +3,15 @@ import { Redirect } from 'react-router-dom';
 import SpotifyLogin from 'react-spotify-login';
 import axios from 'axios';
 
-const buttonText = <div><img src="https://img.icons8.com/nolan/96/000000/spotify.png" alt="login-logo"/>&nbsp;&nbsp;<span>Login with Spotify</span></div>;
+const buttonText = (
+  <div>
+    <img
+      src="https://img.icons8.com/nolan/96/000000/spotify.png"
+      alt="login-logo"
+    />
+    &nbsp;&nbsp;<span>Login with Spotify</span>
+  </div>
+);
 
 class LoginPage extends Component {
   constructor(props) {
@@ -15,66 +23,85 @@ class LoginPage extends Component {
   }
 
   onSuccess = response => {
-    const {cookies} = this.props;
+    const { cookies } = this.props;
     //get user current location
-    axios.get('https://ipapi.co/json/')
-         .then(response => {
-            let data = response.data;
-            cookies.set('jetify_location', data, { path: '/', expires: 0 });
-          })
-          .catch(error => {
-            console.log(error);
-          });
+    axios
+      .get('https://ipapi.co/json/')
+      .then(response => {
+        let data = response.data;
+        cookies.set('jetify_location', data, { path: '/', expires: 0 });
+      })
+      .catch(error => {
+        console.log(error);
+      });
 
     let token = response.access_token;
     cookies.set('jetify_token', token, { path: '/', expires: 0 });
     axios({
       method: 'get',
       url: 'https://api.spotify.com/v1/me',
-      headers: { 'Authorization': `Bearer ${token}` }
-    }).then( response => {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(response => {
       let data = response.data;
       let user = {
-        name:  data.display_name,
+        name: data.display_name,
         email: data.email,
         spotify_id: data.id
       };
-      axios.post('/api/users', user).then(response => {
-        let user = response.data.user;
-        cookies.set('jetify_user', user.id, { path: '/', expires: 0 });
-        this.setState({
-          currentUser: user,
-          redirectToUserPage: true
+      axios
+        .post('/api/users', user)
+        .then(response => {
+          let user = response.data.user;
+          cookies.set('jetify_user', user.id, { path: '/', expires: 0 });
+          this.setState({
+            currentUser: user,
+            redirectToUserPage: true
+          });
+        })
+        .catch(error => {
+          console.log(error);
         });
-      }).catch(error => {
-        console.log(error);
-      });
     });
   };
 
   onFailure = response => console.error(response);
 
   render() {
-    if(this.state.redirectToUserPage === true) {
-      return <Redirect to={`/users/${this.state.currentUser.id}`} />
+    if (this.state.redirectToUserPage === true) {
+      return <Redirect to={`/users/${this.state.currentUser.id}`} />;
     }
 
     return (
       <div className="login-page">
-        <div className="login-page-background"></div>
+        <div className="login-page-background" />
         <section className="login-form">
-          <h4 className="brand" ><img className="bounce"src="https://img.icons8.com/nolan/96/000000/headphones.png" alt="navbar-logo"/></h4>
+          <h4 className="brand">
+            <img
+              className="bounce"
+              src="https://img.icons8.com/nolan/96/000000/headphones.png"
+              alt="navbar-logo"
+            />
+          </h4>
           <h1>Welcome to Jetify</h1>
-          <p>This app shows you upcoming concerts in your area and generates you a playlist based on those events.</p>
-          <p>  With Jetify you can set your location and dates to plan trips centered around music events, or get an idea of what the
-            week sounds like in the city of your choice.</p>
+          <p>
+            This app shows you upcoming concerts in your area and generates you
+            a playlist based on those events.
+          </p>
+          <p>
+            {' '}
+            With Jetify you can set your location and dates to plan trips
+            centered around music events, or get an idea of what the week sounds
+            like in the city of your choice.
+          </p>
           <SpotifyLogin
             type="button"
             className="btn btn-dark"
             buttonText={buttonText}
             clientId={process.env.REACT_APP_SPOTIFY_CLIENT_ID}
-            redirectUri={"http://localhost:3000/api/logging-in"}
-            scope={"user-read-email user-read-private user-read-currently-playing user-library-modify playlist-modify-public playlist-read-collaborative playlist-read-private playlist-modify-private"}
+            redirectUri={`${process.env.REACT_APP_SITE_URL}/api/logging-in`}
+            scope={
+              'user-read-email user-read-private user-read-currently-playing user-library-modify playlist-modify-public playlist-read-collaborative playlist-read-private playlist-modify-private'
+            }
             onSuccess={this.onSuccess}
             onFailure={this.onFailure}
           />

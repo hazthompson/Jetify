@@ -20,9 +20,8 @@ class User extends Component {
     var start = moment();
     var end = moment().add(7, 'days');
     const { cookies } = this.props;
-    const { city, region, latitude, longitude } = cookies.get(
-      'jetify_location'
-    );
+    const locationCookie = cookies.get('jetify_location') || {};
+    const { city, region, latitude, longitude } = locationCookie;
     this.state = {
       current_user: {},
       current_playlist_id: '',
